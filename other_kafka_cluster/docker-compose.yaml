@@ -5,10 +5,10 @@ services:
     container_name: zookeeper-2
     hostname: zookeeper-2
     ports:
-      - "2182:2181"
+      - "2182:2182"
     environment:
       ZOOKEEPER_SERVER_ID: 1
-      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_CLIENT_PORT: 2182
       ZOOKEEPER_TICK_TIME: 2000
       ZOOKEEPER_INIT_LIMIT: 5
       ZOOKEEPER_SYNC_LIMIT: 2
@@ -28,7 +28,7 @@ services:
       - data-kafka-10:/var/lib/kafka/data
     environment:
       KAFKA_BROKER_ID: 10
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper-2:2181
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-2:2182
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
       KAFKA_DELETE_TOPIC_ENABLE: true
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,EXTERNAL://0.0.0.0:19094
@@ -58,7 +58,7 @@ services:
       - data-kafka-11:/var/lib/kafka/data
     environment:
       KAFKA_BROKER_ID: 11
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper-2:2181
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-2:2182
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
       KAFKA_DELETE_TOPIC_ENABLE: true
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,EXTERNAL://0.0.0.0:19095
@@ -88,7 +88,7 @@ services:
       - data-kafka-12:/var/lib/kafka/data
     environment:
       KAFKA_BROKER_ID: 12
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper-2:2181
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-2:2182
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
       KAFKA_DELETE_TOPIC_ENABLE: true
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,EXTERNAL://0.0.0.0:19096
