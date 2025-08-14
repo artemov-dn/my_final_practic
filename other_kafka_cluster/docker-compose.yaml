@@ -1,0 +1,127 @@
+services:
+  zookeeper-2:
+    image: confluentinc/cp-zookeeper:7.4.4
+    restart: always
+    container_name: zookeeper-2
+    hostname: zookeeper-2
+    ports:
+      - "2182:2181"
+    environment:
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+    networks:
+      - kafka_net
+
+  kafka-10:
+    image: confluentinc/cp-kafka:7.4.4
+    restart: always
+    container_name: kafka-10
+    hostname: kafka-10
+    depends_on:
+      - zookeeper-2
+    ports:
+      - "19094:19094"
+    volumes:
+      - data-kafka-10:/var/lib/kafka/data
+    environment:
+      KAFKA_BROKER_ID: 10
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-2:2181
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
+      KAFKA_DELETE_TOPIC_ENABLE: true
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,EXTERNAL://0.0.0.0:19094
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-10:9092,CONTROLLER://kafka-10:9093,EXTERNAL://localhost:19094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_LISTENER_SECURITY_PROTOCOL: PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_MIN_INSYNC_REPLICAS: 2
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 3
+      KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: PLAIN
+      KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
+      KAFKA_SASL_ENABLED_MECHANISMS: PLAIN
+    networks:
+      - kafka_net
+
+  kafka-11:
+    image: confluentinc/cp-kafka:7.4.4
+    restart: always
+    container_name: kafka-11
+    hostname: kafka-11
+    depends_on:
+      - zookeeper-2
+    ports:
+      - "19095:19095"
+    volumes:
+      - data-kafka-11:/var/lib/kafka/data
+    environment:
+      KAFKA_BROKER_ID: 11
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-2:2181
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
+      KAFKA_DELETE_TOPIC_ENABLE: true
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,EXTERNAL://0.0.0.0:19095
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-11:9092,CONTROLLER://kafka-11:9093,EXTERNAL://localhost:19095
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_LISTENER_SECURITY_PROTOCOL: PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_MIN_INSYNC_REPLICAS: 2
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 3
+      KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: PLAIN
+      KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
+      KAFKA_SASL_ENABLED_MECHANISMS: PLAIN
+    networks:
+      - kafka_net
+     
+  kafka-12:
+    image: confluentinc/cp-kafka:7.4.4
+    restart: always
+    container_name: kafka-12
+    hostname: kafka-12
+    depends_on:
+      - zookeeper-2
+    ports:
+      - "19096:19096"
+    volumes:
+      - data-kafka-12:/var/lib/kafka/data
+    environment:
+      KAFKA_BROKER_ID: 12
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper-2:2181
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
+      KAFKA_DELETE_TOPIC_ENABLE: true
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,EXTERNAL://0.0.0.0:19096
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-12:9092,CONTROLLER://kafka-12:9093,EXTERNAL://localhost:19096
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_LISTENER_SECURITY_PROTOCOL: PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_MIN_INSYNC_REPLICAS: 2
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 3
+      KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: PLAIN
+      KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "true"
+      KAFKA_SASL_ENABLED_MECHANISMS: PLAIN
+    networks:
+      - kafka_net
+      
+  ui-2:
+    image: provectuslabs/kafka-ui:v0.7.0
+    container_name: ui-2
+    hostname: ui-2
+    ports:
+      - "8085:8080"
+    environment:
+      KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS: kafka-10:9092,kafka-11:9092,kafka-12:9092
+      KAFKA_CLUSTERS_0_NAME: other_cluster
+    networks:
+      - kafka_net
+       
+volumes:
+  data-kafka-10:
+  data-kafka-11:
+  data-kafka-12:
+
+networks:
+  kafka_net:      
+    name: my_net
