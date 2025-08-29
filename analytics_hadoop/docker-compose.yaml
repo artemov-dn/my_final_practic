@@ -1,0 +1,28 @@
+services:
+  kafka_to_hadoop:
+    build:
+      dockerfile: ./kafka_to_hadoop/Dockerfile
+    container_name: kafka_to_hadoop  
+    environment:
+      - KAFKA_SERVERS=kafka-10:9092
+      - HADOOP_SERVER=hadoop-namenode:9000
+      - KAFKA_TOPICS=filtered-products
+    networks:
+      - kafka_net
+
+  hadoop_to_kafka:
+    build:
+      dockerfile: ./hadoop_to_kafka/Dockerfile
+    container_name: hadoop_to_kafka  
+    environment:
+      - KAFKA_SERVERS=kafka-10:9092
+      - HADOOP_SERVER=hadoop-namenode:9000
+      - KAFKA_TOPIC=recommended-products
+      - HADOOP_PATH=/data/recommended-products
+    networks:
+      - kafka_net
+
+
+networks:
+  kafka_net:      
+    name: my_net

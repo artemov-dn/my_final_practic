@@ -1,0 +1,1 @@
+curl -X PUT -H "Content-Type: application/json" --data @/script/product-connector.json http://localhost:8083/connectors/file-stream-sink-filtered-products/config

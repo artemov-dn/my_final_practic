@@ -1,0 +1,16 @@
+services:
+  spark_hadoop:
+    build:
+      dockerfile: ./spark_hadoop/Dockerfile
+    container_name: spark_hadoop  
+    environment:
+      - HADOOP_SERVER=hadoop-namenode:9000
+      - HADOOP_IN_PATH=/data/filtered-products
+      - HADOOP_OUT_PATH=/data/recommended-products
+    networks:
+      - kafka_net
+
+
+networks:
+  kafka_net:      
+    name: my_net

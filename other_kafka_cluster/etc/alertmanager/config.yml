@@ -1,0 +1,9 @@
+route:
+  repeat_interval: 5m
+  group_interval: 10s
+  receiver: 'telepush'
+receivers:
+  - name: 'telepush'
+    webhook_configs:
+      - send_resolved: true
+        url: 'https://telepush.dev/api/inlets/alertmanager/ace4e6'

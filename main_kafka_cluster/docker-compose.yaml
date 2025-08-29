@@ -35,6 +35,7 @@ services:
      - zookeeper
    ports:
      - "9094:9094"
+     - "9991:9991"
    volumes:
      - data-kafka-0:/var/lib/kafka/data
      - ./jaas-confs:/etc/kafka/jaas
@@ -44,6 +45,7 @@ services:
      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
      KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
      KAFKA_DELETE_TOPIC_ENABLE: true
+     KAFKA_JMX_PORT: 9991
      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,SASL_SSL://0.0.0.0:9093,EXTERNAL://0.0.0.0:9094
      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-0:9092,SASL_SSL://kafka-0:9093,EXTERNAL://localhost:9094
      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,SASL_SSL:SASL_SSL,EXTERNAL:SASL_SSL
@@ -76,6 +78,7 @@ services:
      - zookeeper
    ports:
      - "9095:9095"
+     - "9992:9992"
    volumes:
      - data-kafka-1:/var/lib/kafka/data
      - ./jaas-confs:/etc/kafka/jaas
@@ -85,6 +88,7 @@ services:
      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
      KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
      KAFKA_DELETE_TOPIC_ENABLE: true
+     KAFKA_JMX_PORT: 9992
      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,SASL_SSL://0.0.0.0:9093,EXTERNAL://0.0.0.0:9095
      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:9092,SASL_SSL://kafka-1:9093,EXTERNAL://localhost:9095
      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,SASL_SSL:SASL_SSL,EXTERNAL:SASL_SSL
@@ -117,6 +121,7 @@ services:
      - zookeeper
    ports:
      - "9096:9096"
+     - "9993:9993"
    volumes:
      - data-kafka-2:/var/lib/kafka/data
      - ./jaas-confs:/etc/kafka/jaas
@@ -126,6 +131,7 @@ services:
      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
      KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
      KAFKA_DELETE_TOPIC_ENABLE: true
+     KAFKA_JMX_PORT: 9993
      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,SASL_SSL://0.0.0.0:9093,EXTERNAL://0.0.0.0:9096
      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-2:9092,SASL_SSL://kafka-2:9093,EXTERNAL://localhost:9096
      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,SASL_SSL:SASL_SSL,EXTERNAL:SASL_SSL
@@ -175,7 +181,161 @@ services:
      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
    networks:
      - kafka_net
-      
+
+     
+ kafka-connect:
+   build:
+     context: ./kafka-connect
+   ports:
+     - "8083:8083"  # REST API Kafka Connect
+     - "9875:9875"
+     - "9876:9876"
+   depends_on:
+     - kafka-0
+     - kafka-1
+     - kafka-2
+     - schema-registry
+   environment:
+     CONNECT_BOOTSTRAP_SERVERS: kafka-0:9092
+     CONNECT_REST_PORT: 8083
+     CONNECT_GROUP_ID: 'kafka-connect'
+     CONNECT_REST_ADVERTISED_HOST_NAME: 'localhost'
+
+     # Хранение конфигурации, смещений и статусов
+     CONNECT_CONFIG_STORAGE_TOPIC: 'connect-config-storage'
+     CONNECT_OFFSET_STORAGE_TOPIC: 'connect-offset-storage'
+     CONNECT_STATUS_STORAGE_TOPIC: 'connect-status-storage'
+     CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 3
+     CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 3
+     CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 3
+
+     # Конвертеры
+     CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+     CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+     CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+     CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+     CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: 'http://schema-registry:8081'
+
+     # Пути к плагинам
+     CONNECT_PLUGIN_PATH: /usr/share/java,/etc/kafka-connect/jars
+   command: 
+     - bash 
+     - -c 
+     - |
+       /etc/confluent/docker/run & 
+       echo "Waiting for Kafka Connect to start listening on kafka-connect ⏳"
+       while [ $$(curl -s -o /dev/null -w %{http_code} http://kafka-connect:8083/connectors) -eq 000 ] ; do 
+         echo -e $$(date) " Kafka Connect listener HTTP state: " $$(curl -s -o /dev/null -w %{http_code} http://kafka-connect:8083/connectors) " (waiting for 200)"
+         sleep 5 
+       done
+       nc -vz kafka-connect 8083
+       echo -e "\n--\n+> Creating Kafka Connect pg-connector"
+       /script/create-product-connector.sh 
+       sleep 10
+       /script/create-request-connector.sh 
+       sleep infinity
+   volumes:
+     - ./confluent-hub-components/:/etc/kafka-connect/jars
+     - ./kafka-connect/script/:/script     
+   networks:
+     - kafka_net
+
+
+ jmx-kafka-0:
+   image: "sscaling/jmx-prometheus-exporter"
+   restart: unless-stopped
+   ports:
+     - "5556:5556"
+   environment:
+     CONFIG_YML : "/etc/jmx_exporter/config.yml"
+     JVM_OPTS: "-Xmx128M"
+   volumes:
+     - ./etc/jmx_exporter/config_kafka_0.yml:/etc/jmx_exporter/config.yml
+   container_name: jmx-kafka-0
+   depends_on:
+     - kafka-0
+   networks:
+     - kafka_net
+     
+ jmx-kafka-1:
+   image: "sscaling/jmx-prometheus-exporter"
+   restart: unless-stopped
+   ports:
+     - "5557:5556"
+   environment:
+     CONFIG_YML : "/etc/jmx_exporter/config.yml"
+     JVM_OPTS: "-Xmx128M"
+   volumes:
+     - ./etc/jmx_exporter/config_kafka_1.yml:/etc/jmx_exporter/config.yml
+   container_name: jmx-kafka-1
+   depends_on:
+     - kafka-1
+   networks:
+     - kafka_net
+     
+ jmx-kafka-2:
+   image: "sscaling/jmx-prometheus-exporter"
+   restart: unless-stopped
+   ports:
+     - "5558:5556"
+   environment:
+     CONFIG_YML : "/etc/jmx_exporter/config.yml"
+     JVM_OPTS: "-Xmx128M"
+   volumes:
+     - ./etc/jmx_exporter/config_kafka_2.yml:/etc/jmx_exporter/config.yml
+   container_name: jmx-kafka-2
+   depends_on:
+     - kafka-2
+   networks:
+     - kafka_net
+
+ prometheus:
+   image: prom/prometheus:latest
+   restart: unless-stopped   
+   ports:
+     - 9090:9090
+   volumes:
+     - ./etc/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+     - ./etc/prometheus/alert.rules:/etc/prometheus/alert.rules
+   command: "--config.file=/etc/prometheus/prometheus.yml"
+   container_name: prometheus
+   networks:
+     - kafka_net
+
+ grafana:
+   image: grafana/grafana:8.1.6
+   restart: unless-stopped   
+   ports:
+     - "3001:3000"
+   environment:
+     GF_PATHS_DATA : /var/lib/grafana
+     GF_SECURITY_ADMIN_PASSWORD : kafka
+   volumes:
+     - ./grafana/provisioning:/etc/grafana/provisioning
+     - ./grafana/dashboards:/var/lib/grafana/dashboards
+   container_name: grafana
+   depends_on:
+     - prometheus
+   networks:
+     - kafka_net
+
+ alertmanager:
+   image: prom/alertmanager:v0.21.0
+   restart: unless-stopped
+   container_name: alertmanager
+   volumes:
+     - ./etc/alertmanager/config.yml:/etc/alertmanager/config.yml
+   command:
+     - '--config.file=/etc/alertmanager/config.yml'
+     - '--storage.path=/alertmanager'
+     - '--log.level=debug'
+   ports:
+     - 9093:9093     
+   networks:
+     - kafka_net
+
+     
+
 volumes:
  data-kafka-0:
  data-kafka-1:

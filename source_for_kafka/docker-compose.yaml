@@ -1,0 +1,61 @@
+services:
+  client_api_producer:
+    build:
+      dockerfile: ./kafka_spring_client_producer/Dockerfile
+    container_name: client_api_producer  
+    ports:
+      - "8091:8091"
+    environment:
+      - KAFKA_SERVERS=kafka-0:9093,kafka-1:9093,kafka-2:9093
+      - KAFKA_TOPIC=client-requests
+      - KAFKA_USERNAME=user
+      - KAFKA_PASSWORD=user-secret
+      - TRUSTSTORE_LOCATION=/app/kafka-creds/kafka.truststore.jks
+      - TRUSTSTORE_PASSWORD=password
+      - REQUESTS_LOCATION=/app/client-resources/requests.json
+      - SCHEMA_REGISTRY_URL=http://schema-registry:8081
+    networks:
+      - kafka_net
+
+  shop_api_producer:
+    build:
+      dockerfile: ./kafka_spring_shop_producer/Dockerfile
+    container_name: shop_api_producer  
+    environment:
+      - KAFKA_SERVERS=kafka-0:9093,kafka-1:9093,kafka-2:9093
+      - KAFKA_TOPIC=shop-products
+      - KAFKA_USERNAME=shop
+      - KAFKA_PASSWORD=shop-secret
+      - TRUSTSTORE_LOCATION=/app/kafka-creds/kafka.truststore.jks
+      - TRUSTSTORE_PASSWORD=password
+      - PRODUCTS_LOCATION=/app/shop-resources/products.json
+      - SCHEMA_REGISTRY_URL=http://schema-registry:8081
+    networks:
+      - kafka_net
+
+  kafka_stream:
+    build:
+      dockerfile: ./kafka_stream_state_store/Dockerfile
+    container_name: kafka_stream  
+    depends_on:
+      - client_api_producer
+      - shop_api_producer
+    ports:
+      - "8090:8090"
+    environment:
+      - KAFKA_SERVERS=kafka-0:9093,kafka-1:9093,kafka-2:9093
+      - KAFKA_PRODUCTS_TOPIC=shop-products
+      - KAFKA_FILTERED_TOPIC=filtered-products
+      - KAFKA_BLOCKED_PRODUCTS_TOPIC:blocked-products
+      - KAFKA_USERNAME=admin
+      - KAFKA_PASSWORD=admin-secret
+      - TRUSTSTORE_LOCATION=/app/kafka-creds/kafka.truststore.jks
+      - TRUSTSTORE_PASSWORD=password
+      - SCHEMA_REGISTRY_URL=http://schema-registry:8081
+    networks:
+      - kafka_net
+
+
+networks:
+  kafka_net:      
+    name: my_net

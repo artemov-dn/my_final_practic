@@ -1,0 +1,150 @@
+[
+{
+  "product_id": "12345",
+  "name": "Умные часы XYZ",
+  "description": "Умные часы с функцией мониторинга здоровья, GPS и уведомлениями.",
+  "price": {
+    "amount": 4999.99,
+    "currency": "RUB"
+  },
+  "category": "Электроника",
+  "brand": "XYZ",
+  "stock": {
+    "available": 150,
+    "reserved": 20
+  },
+  "sku": "XYZ-12345",
+  "tags": ["умные часы", "гаджеты", "технологии"],
+  "images": [
+    {
+      "url": "https://example.com/images/product1.jpg",
+      "alt": "Умные часы XYZ - вид спереди"
+    },
+    {
+      "url": "https://example.com/images/product1_side.jpg",
+      "alt": "Умные часы XYZ - вид сбоку"
+    }
+  ],
+  "specifications": {
+    "weight": "50g",
+    "dimensions": "42mm x 36mm x 10mm",
+    "battery_life": "24 hours",
+    "water_resistance": "IP68"
+  },
+  "created_at": "2024-10-01T12:00:00Z",
+  "updated_at": "2024-10-10T15:30:00Z",
+  "index": "products",
+  "store_id": "store_001"
+},
+{
+  "product_id": "12346",
+  "name": "Умные часы ABC",
+  "description": "Умные часы GPS и NFC.",
+  "price": {
+    "amount": 5999.99,
+    "currency": "RUB"
+  },
+  "category": "Электроника",
+  "brand": "ABC",
+  "stock": {
+    "available": 100,
+    "reserved": 10
+  },
+  "sku": "ABC-12346",
+  "tags": ["умные часы", "гаджеты", "технологии"],
+  "images": [
+    {
+      "url": "https://example.com/images/product2.jpg",
+      "alt": "Умные часы ABC - вид спереди"
+    },
+    {
+      "url": "https://example.com/images/product2_side.jpg",
+      "alt": "Умные часы ABC - вид сбоку"
+    }
+  ],
+  "specifications": {
+    "weight": "40g",
+    "dimensions": "42mm x 36mm x 10mm",
+    "battery_life": "24 hours",
+    "water_resistance": "IP68"
+  },
+  "created_at": "2025-07-01T12:00:00Z",
+  "updated_at": "2025-07-10T15:30:00Z",
+  "index": "products",
+  "store_id": "store_001"
+},
+{
+  "product_id": "12347",
+  "name": "Умные часы ZIC",
+  "description": "Умные часы ZIC",
+  "price": {
+    "amount": 8999.99,
+    "currency": "RUB"
+  },
+  "category": "Электроника",
+  "brand": "ZIZ",
+  "stock": {
+    "available": 250,
+    "reserved": 30
+  },
+  "sku": "ZIC-12347",
+  "tags": ["умные часы", "гаджеты", "технологии"],
+  "images": [
+    {
+      "url": "https://example.com/images/product3.jpg",
+      "alt": "Умные часы ZIC - вид спереди"
+    },
+    {
+      "url": "https://example.com/images/product3_side.jpg",
+      "alt": "Умные часы ZIC - вид сбоку"
+    }
+  ],
+  "specifications": {
+    "weight": "60g",
+    "dimensions": "40mm x 36mm x 12mm",
+    "battery_life": "24 hours",
+    "water_resistance": "IP68"
+  },
+  "created_at": "2025-07-11T12:00:00Z",
+  "updated_at": "2025-07-15T16:30:00Z",
+  "index": "products",
+  "store_id": "store_001"
+},
+{
+  "product_id": "12348",
+  "name": "Неумные часы ZIC",
+  "description": "Неумные часы ZIC",
+  "price": {
+    "amount": 1999.99,
+    "currency": "RUB"
+  },
+  "category": "Электроника",
+  "brand": "ZIZ",
+  "stock": {
+    "available": 550,
+    "reserved": 50
+  },
+  "sku": "ZIC-12348",
+  "tags": ["часы", "технологии"],
+  "images": [
+    {
+      "url": "https://example.com/images/product4.jpg",
+      "alt": "Неумные часы ZIC - вид спереди"
+    },
+    {
+      "url": "https://example.com/images/product4_side.jpg",
+      "alt": "Неумные часы ZIC - вид сбоку"
+    }
+  ],
+  "specifications": {
+    "weight": "20g",
+    "dimensions": "38mm x 32mm x 6mm",
+    "battery_life": "48 hours",
+    "water_resistance": "IP68"
+  },
+  "created_at": "2025-07-12T10:00:00Z",
+  "updated_at": "2025-07-19T12:30:00Z",
+  "index": "products",
+  "store_id": "store_001"
+}
+]
